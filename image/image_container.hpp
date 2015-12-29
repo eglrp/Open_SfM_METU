@@ -20,6 +20,11 @@
 namespace Open_SfM_METU {
 namespace image {
     
+template <typename T> class Image;
+typedef Image<float> FloatImage;
+typedef Image<unsigned char> UcharImage;
+typedef Image<int> IntImage;
+
 template <typename T>
 class Image : public Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>
 {

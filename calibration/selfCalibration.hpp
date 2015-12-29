@@ -15,7 +15,7 @@
 #include <stdio.h>
 
 #include "openMVG/image/image.hpp"
-#include "Open_SfM_METU/feature/feature.hpp"
+#include "Open_SfM_METU/feature/keypoint.hpp"
 
 
 

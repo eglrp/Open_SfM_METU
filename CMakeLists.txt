@@ -1,5 +1,6 @@
 add_subdirectory (calibration)
 add_subdirectory (image)
+add_subdirectory (feature)
 
 #INSTALL RULES
 INSTALL(
