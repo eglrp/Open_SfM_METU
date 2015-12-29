@@ -39,20 +39,23 @@ namespace feature {
 		}
 
 		
-		/*
+		
 		// The VLFeat functions take in a non-const image pointer so that it can
 		// calculate gaussian pyramids. Obviously, we do not want to break our const
 		// input, so the best solution (for now) is to copy the image.
-		FloatImage mutable_image(image.AsGrayscaleImage());
+		//FloatImage mutable_image(image.AsGrayscaleImage());
 
+		const image::Image<float> mutable_image(image.GetMat().cast<float>());
 		
-
+		
 		// Calculate the first octave to process.
 		int vl_status = vl_sift_process_first_octave(sift_filter_,
-		                                           mutable_image.Data());
+		                                           mutable_image.data());
 		// Reserve an amount that is slightly larger than what a typical detector
 		// would return.
 		keypoints->reserve(2000);
+
+		
 
 		// Process octaves until you can't anymore.
 		while (vl_status != VL_ERR_EOF) {
@@ -80,11 +83,11 @@ namespace feature {
 		    keypoints->push_back(keypoint);
 		  }
 		}
-		// Attempt to process the next octave.
-		vl_status = vl_sift_process_next_octave(sift_filter_);
+			// Attempt to process the next octave.
+			vl_status = vl_sift_process_next_octave(sift_filter_);
 		}
 
-		*/
+		
 
 		return true;
 
