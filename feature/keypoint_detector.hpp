@@ -9,7 +9,7 @@ namespace Open_SfM_METU {
 namespace feature {
 
 	//template<class T> class Image;
-	typedef image::Image<float> FloatImage;
+	typedef image::Image<unsigned char> UcharImage;
 	
 	// A pure virtual class for keypoint detectors. We assume that the keypoint
 	// detectors only use grayimages for now.
@@ -28,7 +28,7 @@ namespace feature {
   			// Detect keypoints using the desired method. This method will allocate the
   			// Keypoint pointers in the vector with new, but the caller owns the data
   			// returned (and must delete the pointers).
-  			virtual bool DetectKeypoints(const FloatImage& image, std::vector<Keypoint>* keypoints) = 0;
+  			virtual bool DetectKeypoints(const UcharImage& image, std::vector<Keypoint>* keypoints) = 0;
 
 		private:
   			//DISALLOW_COPY_AND_ASSIGN(KeypointDetector);

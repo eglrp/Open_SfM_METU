@@ -22,7 +22,7 @@ namespace feature {
 
 
 //template<class T> class Image;
-typedef image::Image<float> FloatImage;
+typedef image::Image<unsigned char> UcharImage;
 
 class SiftDetector : public KeypointDetector {
 
@@ -33,7 +33,7 @@ class SiftDetector : public KeypointDetector {
   		~SiftDetector();
 
   	// Given an image, detect keypoints using the sift descriptor.
-  	bool DetectKeypoints(const FloatImage& image, std::vector<Keypoint>* keypoints);
+  	bool DetectKeypoints(const UcharImage& image, std::vector<Keypoint>* keypoints);
 
 
 	private:

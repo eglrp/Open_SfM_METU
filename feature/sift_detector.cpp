@@ -20,7 +20,7 @@ namespace feature {
 	    vl_sift_delete(sift_filter_);
 	}
 
-	bool SiftDetector::DetectKeypoints(const image::Image<float>& image, std::vector<Keypoint>* keypoints) {
+	bool SiftDetector::DetectKeypoints(const image::Image<unsigned char>& image, std::vector<Keypoint>* keypoints) {
 
 		// If the filter has been set, but is not usable for the input image (i.e. the
 		// width and height are different) then we must make a new filter. Adding this
@@ -44,6 +44,8 @@ namespace feature {
 		// calculate gaussian pyramids. Obviously, we do not want to break our const
 		// input, so the best solution (for now) is to copy the image.
 		FloatImage mutable_image(image.AsGrayscaleImage());
+
+		
 
 		// Calculate the first octave to process.
 		int vl_status = vl_sift_process_first_octave(sift_filter_,
