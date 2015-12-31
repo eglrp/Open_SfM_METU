@@ -7,7 +7,7 @@
 
 
 extern "C" {
-	#include <openMVG_dependencies/nonFree/sift/vl/sift.h>
+	#include <Open_SfM_METU/nonFree/vlfeat/vl/sift.h>
 }
 
 
