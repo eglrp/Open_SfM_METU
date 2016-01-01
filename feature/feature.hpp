@@ -5,6 +5,7 @@
 #include "Open_SfM_METU/feature/keypoint.hpp"
 #include "Open_SfM_METU/feature/keypoint_detector.hpp"
 #include "Open_SfM_METU/feature/sift_detector.hpp"
+#include "Open_SfM_METU/feature/descriptor_extractor.hpp"
 
 
 
