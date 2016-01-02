@@ -36,7 +36,12 @@ namespace feature {
 			// be removed from the container. Returns true on success and false on
 			// failure.
 			virtual bool ComputeDescriptors(const UcharImage& image, std::vector<Keypoint>* keypoints, std::vector<Eigen::VectorXf>* descriptors);
-			
+
+		  	// Detects keypoints using the default method for the given descriptor. This
+			// can be more efficient (e.g., with SIFT) because there is some overhead
+			// required for creating the keypoint and descriptor objects.
+			//virtual bool DetectAndExtractDescriptors(const FloatImage& image, std::vector<Keypoint>* keypoints,  std::vector<Eigen::VectorXf>* descriptors) = 0;
+
 
 		private:
   			//DISALLOW_COPY_AND_ASSIGN(DescriptorExtractor);
