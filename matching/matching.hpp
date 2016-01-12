@@ -5,4 +5,4 @@
 
 
 
-#endif // OPEN_SFM_METU_FEATURE_HPP
+#endif // OPEN_SFM_METU_MATCHING_HPP

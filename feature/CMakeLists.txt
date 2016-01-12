@@ -26,6 +26,7 @@ include_directories(/usr/local/include/eigen3)
 MESSAGE(“feature-keypoint folder \n”)
 MESSAGE(${Open_SfM_METU_INCLUDE_DIRS})
 
+
 include_directories(SYSTEM ${Open_SfM_METU_INCLUDE_DIRS})
 
 

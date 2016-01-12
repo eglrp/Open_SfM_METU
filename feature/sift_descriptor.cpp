@@ -14,6 +14,8 @@ extern "C" {
 #include "Open_SfM_METU/feature/descriptor_extractor.hpp"
 #include "Open_SfM_METU/feature/keypoint.hpp"
 
+#include <glog/logging.h>
+
 
 namespace Open_SfM_METU {
 namespace feature {
@@ -58,7 +60,7 @@ namespace feature {
 	bool SiftDescriptorExtractor::ComputeDescriptor(const image::Image<unsigned char>& image,
 												    const Keypoint& keypoint,
 												    Eigen::VectorXf* descriptor) {
-	  //CHECK(keypoint.has_scale() && keypoint.has_orientation()) << "Keypoint must have scale and orientation to compute a SIFT "  << "descriptor.";
+	  CHECK(keypoint.has_scale() && keypoint.has_orientation()) << "Keypoint must have scale and orientation to compute a SIFT "  << "descriptor.";
 	  
 	  // If the filter has been set, but is not usable for the input image (i.e. the
 	  // width and height are different) then we must make a new filter. Adding this
