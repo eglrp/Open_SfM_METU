@@ -18,7 +18,7 @@ namespace feature {
 	// Input image is grayscale and uchar format. 
 	// Before adding any descriptor algorithm we need to check that if it is fit in our function
 
-	bool DescriptorExtractor::ComputeDescriptors(const UcharImage& image, std::vector<Keypoint>* keypoints, std::vector<Eigen::VectorXf>* descriptors){
+	bool DescriptorExtractor::ComputeDescriptors(const image::Image<unsigned char>& image, std::vector<Keypoint>* keypoints, std::vector<Eigen::VectorXf>* descriptors){
 
 
 		descriptors->reserve(keypoints->size());	// Since sparse matirx is used here from Eigen library. 

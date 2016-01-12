@@ -17,7 +17,7 @@ namespace feature {
 
 		public:
 
-			DescriptorExtractor();
+			DescriptorExtractor() {}
 			virtual ~DescriptorExtractor() {}
 
 			// This method should be called before using any of the descriptor

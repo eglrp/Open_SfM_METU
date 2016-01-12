@@ -5,7 +5,7 @@
 
 
 extern "C" {
-	#include <openMVG_dependencies/nonFree/sift/vl/sift.h>
+	#include <Open_SfM_METU/nonFree/vlfeat/vl/sift.h>
 }
 
 #include <vector>
@@ -29,8 +29,8 @@ class SiftDetector : public KeypointDetector {
 	public:
 		explicit SiftDetector(const SiftParameters& sift_params) : sift_params_(sift_params), sift_filter_(nullptr) {}
  		SiftDetector(int num_octaves, int num_levels, int first_octave) : sift_params_(num_octaves, num_levels, first_octave), sift_filter_(nullptr) {}
-  		SiftDetector() : SiftDetector(-1, 3, 0) {}
-  		~SiftDetector();
+		SiftDetector() : SiftDetector(-1, 3, 0) {}
+		~SiftDetector();
 
   	// Given an image, detect keypoints using the sift descriptor.
   	bool DetectKeypoints(const UcharImage& image, std::vector<Keypoint>* keypoints);
