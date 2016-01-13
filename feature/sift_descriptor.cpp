@@ -96,14 +96,14 @@ namespace feature {
 	    vl_sift_process_next_octave(sift_filter_);
 
 	  if (vl_status == VL_ERR_EOF){
-	    // akin LOG(FATAL) << "could not extract sift descriptors";
+	    LOG(FATAL) << "could not extract sift descriptors";
 	  	std::cout << "could not extract sift descriptors" << std::endl;
 
 	  }
 	  
 	  // Calculate the sift feature. Note that we are passing in a direct pointer to
 	  // the descriptor's underlying data.
-	  // akin CHECK_NOTNULL(descriptor)->resize(128);
+	  CHECK_NOTNULL(descriptor)->resize(128);
 	  (descriptor)->resize(128);
 	  vl_sift_calc_keypoint_descriptor(sift_filter_, descriptor->data(),
 	                                   &sift_keypoint, keypoint.orientation());
@@ -135,7 +135,7 @@ namespace feature {
 	  // Create the vl sift keypoint from the one passed in.
 	  std::vector<VlSiftKeypoint> sift_keypoints(keypoints->size());
 	  for (int i = 0; i < keypoints->size(); i++) {
-	    // akin CHECK((*keypoints)[i].has_scale() && (*keypoints)[i].has_orientation()) << "Keypoint must have scale and orientation to compute a SIFT " << "descriptor.";
+	    CHECK((*keypoints)[i].has_scale() && (*keypoints)[i].has_orientation()) << "Keypoint must have scale and orientation to compute a SIFT " << "descriptor.";
 	    vl_sift_keypoint_init(sift_filter_,
 	                          &sift_keypoints[i],
 	                          (*keypoints)[i].x(),
