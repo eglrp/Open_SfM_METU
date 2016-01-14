@@ -40,7 +40,8 @@ class BruteForceFeatureMatcher : public FeatureMatcher<DistanceMetric> {
 
   		bool MatchImagePair(	const KeypointsAndDescriptors& features1,
       							const KeypointsAndDescriptors& features2,
-      							std::vector<FeatureCorrespondence>* matched_featuers) override;
+      							std::vector<FeatureCorrespondence>* matched_featuers,
+      							std::vector<IndexedFeatureMatch>* matches_result) override;
 
   		bool sampleMemberFunction();
 
@@ -58,7 +59,8 @@ class BruteForceFeatureMatcher : public FeatureMatcher<DistanceMetric> {
 	template <class DistanceMetric>
 	bool BruteForceFeatureMatcher<DistanceMetric>::MatchImagePair(const KeypointsAndDescriptors& features1,
 																    const KeypointsAndDescriptors& features2,
-																    std::vector<FeatureCorrespondence>* matched_features) {
+																    std::vector<FeatureCorrespondence>* matched_features,
+																    std::vector<IndexedFeatureMatch>* matches_result) {
 	
 		const std::vector<Eigen::VectorXf>& descriptors1 = features1.descriptors;
 		const std::vector<feature::Keypoint>& keypoints1 = features1.keypoints;
@@ -131,6 +133,16 @@ class BruteForceFeatureMatcher : public FeatureMatcher<DistanceMetric> {
 		if (matches.size() < this->matcher_options_.min_num_feature_matches) {
     		return false;
   		}
+  		
+  		// Copy matches to matches_result
+		matches_result->resize(matches.size());
+		for(int i = 0; i < matches.size(); i++){
+
+			matches_result->at(i) = matches[i];
+
+		}
+
+  		
 
   		// Convert to FeatureCorrespondences and return true
 		matched_features->resize(matches.size());

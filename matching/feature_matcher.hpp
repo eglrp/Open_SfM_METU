@@ -19,6 +19,7 @@
 #include "Open_SfM_METU/matching/feature_matcher_options.hpp"
 #include "Open_SfM_METU/matching/feature_correspondence.hpp"
 #include "Open_SfM_METU/matching/image_pair_match.hpp"
+#include "Open_SfM_METU/matching/indexed_feature_match.hpp"
 
 
 namespace Open_SfM_METU {
@@ -88,7 +89,8 @@ template <class DistanceMetric> class FeatureMatcher {
 		// Then feature_matcher class is abstract base class and we can not create object of it. 
 		virtual bool MatchImagePair(  const KeypointsAndDescriptors& features1,
 								      const KeypointsAndDescriptors& features2,
-								      std::vector<FeatureCorrespondence>* matched_features) = 0;
+								      std::vector<FeatureCorrespondence>* matched_features,
+								      std::vector<IndexedFeatureMatch>* matches_result) = 0;
 
 		FeatureMatcherOptions matcher_options_;
 
