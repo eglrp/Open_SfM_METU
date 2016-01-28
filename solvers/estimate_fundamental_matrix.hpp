@@ -21,12 +21,14 @@ namespace solvers {
 // could be successfully estimated and false otherwise.
 
 
+
 bool EstimateFundamentalMatrix(
     const RansacParameters& ransac_params,
     const RansacType& ransac_type,
     const std::vector<matching::FeatureCorrespondence>& normalized_correspondences,
     Eigen::Matrix3d* essential_matrix,
-    RansacSummary* ransac_summary);
+    RansacSummary* ransac_summary,
+    std::vector<double>* all_l_values_est);
 
 
 }

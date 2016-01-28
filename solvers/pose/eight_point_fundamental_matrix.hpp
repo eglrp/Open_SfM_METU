@@ -26,6 +26,7 @@ namespace solvers {
 //     image_2_points.
 
 
+
 bool NormalizedEightPointFundamentalMatrix(
     const std::vector<Eigen::Vector2d>& image_1_points,
     const std::vector<Eigen::Vector2d>& image_2_points,
@@ -34,7 +35,8 @@ bool NormalizedEightPointFundamentalMatrix(
 bool NormalizedEightPointFundamentalMatrixWithRadialDistortion(
     const std::vector<Eigen::Vector2d>& image_1_points,
     const std::vector<Eigen::Vector2d>& image_2_points,
-    Eigen::Matrix3d* fundamental_matrix);
+    Eigen::Matrix3d* fundamental_matrix,
+    std::vector<double>& lambdaValues);
 
 
 }

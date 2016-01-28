@@ -39,6 +39,13 @@ template <typename DatumType, typename ModelType> class Estimator {
 		virtual bool EstimateModel(const std::vector<Datum>& data,
 		                         std::vector<Model>* model) const = 0;
 
+		// Given a set of data points, estimate the model. Users should implement this
+		// function appropriately for the task being solved. Returns true for
+		// successful model estimation (and outputs model), false for failed
+		// estimation. Typically, this is a minimal set, but it is not required to be.
+		virtual bool EstimateModel(const std::vector<Datum>& data,
+		                         std::vector<Model>* model, std::vector<double>* l_values) const = 0;
+
 		// Estimate a model from a non-minimal sampling of the data. E.g. for a line,
 		// use SVD on a set of points instead of constructing a line from two points.
 		// By default, this simply implements the minimal case.
@@ -92,6 +99,8 @@ template <typename DatumType, typename ModelType> class Estimator {
 		// Enable a quick check to see if the model is valid. This can be a geometric
 		// check or some other verification of the model structure.
 		virtual bool ValidModel(const Model& model) const { return true; }
+
+
 
 };
 

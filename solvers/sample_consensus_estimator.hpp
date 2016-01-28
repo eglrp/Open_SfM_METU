@@ -45,10 +45,15 @@ class SampleConsensusEstimator {
 		//     and Model type
 		//   best_model: The output parameter that will be filled with the best model
 		//     estimated from RANSAC
-		virtual bool Estimate(const std::vector<Datum>& data,
-		                    Model* best_model,
-		                    RansacSummary* summary);
+		//virtual bool Estimate(const std::vector<Datum>& data,
+		//                    Model* best_model,
+		//                    RansacSummary* summary);
 
+
+    virtual bool Estimate(const std::vector<Datum>& data,
+                        Model* best_model,
+                        RansacSummary* summary,
+                        std::vector<double>* all_l_vals);
 
 
 	protected:
@@ -81,6 +86,7 @@ class SampleConsensusEstimator {
 
 		// Estimator to use for generating models.
 		const ModelEstimator& estimator_;
+
 
 };
 
@@ -152,7 +158,8 @@ template <class ModelEstimator>
 bool SampleConsensusEstimator<ModelEstimator>::Estimate(
     const std::vector<Datum>& data,
     Model* best_model,
-    RansacSummary* summary) {
+    RansacSummary* summary,
+    std::vector<double>* all_l_vals) {
   CHECK_GT(data.size(), 0)
       << "Cannot perform estimation with 0 data measurements!";
   CHECK_NOTNULL(sampler_.get());
@@ -185,7 +192,15 @@ bool SampleConsensusEstimator<ModelEstimator>::Estimate(
     // Estimate model from subset. Skip to next iteration if the model fails to
     // estimate.
     std::vector<Model> temp_models;
+    /*
     if (!estimator_.EstimateModel(data_subset, &temp_models)) {
+      continue;
+    }
+    */
+
+    //std::vector<double> l_values_inside;
+
+    if (!estimator_.EstimateModel(data_subset, &temp_models, all_l_vals)) {
       continue;
     }
 
@@ -234,6 +249,8 @@ bool SampleConsensusEstimator<ModelEstimator>::Estimate(
   summary->confidence =
       1.0 - pow(1.0 - pow(inlier_ratio, estimator_.SampleSize()),
                 summary->num_iterations);
+
+
 
   return true;
 }
