@@ -98,6 +98,9 @@ bool NormalizedEightPointFundamentalMatrix(
 // (A_0 + λ*A_1 + ... + λ^(p) * A_p)
 // _input_matrices_vec: they are in order as began from A_0 to A_p. 
 
+// E_result is eigen values
+// X_result is eigen vectors
+
 bool polyEig(std::vector<Eigen::MatrixXd> _input_matrices_vec, 
 												int n_value, 
 												int p_value, 
@@ -540,10 +543,19 @@ bool NormalizedEightPointFundamentalMatrixWithRadialDistortion(
   	  
   	  // PLEASE REMEMBE TO CHECK IF WE NEED TO USE ALIGNMENT OF EIGEN LIBRARY SINCE WE ARE USING VECTOR AND EIGEN MATRIX
 
+  	  Matrix<double, Eigen::Dynamic, 9> constraint_matrix_D1_result(image_1_points.size(), 9);
+	  constraint_matrix_D1_result = Eigen::MatrixXd::Zero(image_1_points.size(), 9);
 
-	  constraint_matrix_D1 = constraint_matrix_D1.transpose() * constraint_matrix_D1;
-	  constraint_matrix_D2 = constraint_matrix_D1.transpose() * constraint_matrix_D2;
-  	  constraint_matrix_D3 = constraint_matrix_D1.transpose() * constraint_matrix_D3;
+
+  	  Matrix<double, Eigen::Dynamic, 9> constraint_matrix_D2_result(image_1_points.size(), 9);
+	  constraint_matrix_D2_result = Eigen::MatrixXd::Zero(image_1_points.size(), 9);
+
+	  Matrix<double, Eigen::Dynamic, 9> constraint_matrix_D3_result(image_1_points.size(), 9);
+	  constraint_matrix_D3_result = Eigen::MatrixXd::Zero(image_1_points.size(), 9);
+
+	  constraint_matrix_D1_result = constraint_matrix_D1.transpose() * constraint_matrix_D1;
+	  constraint_matrix_D2_result = constraint_matrix_D1.transpose() * constraint_matrix_D2;
+  	  constraint_matrix_D3_result = constraint_matrix_D1.transpose() * constraint_matrix_D3;
 
   	  /*
 
@@ -558,14 +570,14 @@ bool NormalizedEightPointFundamentalMatrixWithRadialDistortion(
 	  
 
   	  std::vector<Eigen::MatrixXd> input_matrices_vec;
-  	  input_matrices_vec.push_back(constraint_matrix_D1);
-  	  input_matrices_vec.push_back(constraint_matrix_D2);
-  	  input_matrices_vec.push_back(constraint_matrix_D3);
+  	  input_matrices_vec.push_back(constraint_matrix_D3_result);
+  	  input_matrices_vec.push_back(constraint_matrix_D2_result);
+  	  input_matrices_vec.push_back(constraint_matrix_D1_result);
 
   	  Eigen::VectorXcd E_result;
   	  Eigen::MatrixXcd X_result;
   	  
-  	  int n_value =  constraint_matrix_D1.rows();
+  	  int n_value =  constraint_matrix_D1_result.rows();
   	  int p_value =  input_matrices_vec.size() - 1;
 
 
@@ -607,9 +619,20 @@ bool NormalizedEightPointFundamentalMatrixWithRadialDistortion(
   	  			
   	  			if(!std::isnan(E_result(i).real()) && !std::isinf(E_result(i).real())){
 
-  	  				real_E_result(i) = E_result(i).real();
+  	  				if((std::abs(E_result(i).real())) < 10 ){
 
-  	  				lambdaValues.push_back(real_E_result(i));
+  	  					real_E_result(i) = E_result(i).real();
+
+  	  					lambdaValues.push_back(1.0f / real_E_result(i));
+  	  					// gelen eigen valularin sanirim tersi kullanilacak
+  	  					// bir de polyeig sonuclarinda abs elemesi vardi bunda da ters eigen value ya dikkat edelim. 
+  	  					// buna ek olarak polyeig icinde matlabda yaptigimizdaki ayni normalized koordinatlari kullaniuor muyuz ??
+  	  					// polyeig e matrisleri verirken soyle ypalim. paperdaki fonksiyon dogru ve variable lar da dogru. 
+  	  					// matlabin polyeig fonksiyonundaki variable sirasi yanlis. 
+
+  	  				}
+
+
 
   	  			}
 
