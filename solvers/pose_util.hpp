@@ -26,6 +26,12 @@ double SquaredSampsonDistance(const Eigen::Matrix3d& F,
 //                        [-y   x   0]
 Eigen::Matrix3d CrossProductMatrix(const Eigen::Vector3d& cross_vec);
 
+// Given a 2xN matrix image points. This functionnormalize the image pixels
+// so that (0,0) point is at the image center. This is method 2
+bool NormalizeImagePoints_M2(
+    const std::vector<Eigen::Vector2d>& image_points,
+    std::vector<Eigen::Vector2d>* normalized_image_points);
+
 // Given a 2xN matrix of image points (of the form [x, y]), this method
 // calculates the matrix that will shift the points so that the centroid is at
 // the origin and the average distance from the centroid is sqrt(2). Returns the
@@ -34,6 +40,8 @@ bool NormalizeImagePoints(
     const std::vector<Eigen::Vector2d>& image_points,
     std::vector<Eigen::Vector2d>* normalized_image_points,
     Eigen::Matrix3d* normalization_matrix);
+
+
 
 // Projects a 3x3 matrix to the rotation matrix in SO3 space with the closest
 // Frobenius norm. For a matrix with an SVD decomposition M = USV, the nearest

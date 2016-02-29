@@ -36,7 +36,7 @@ class FundamentalMatrixEstimator
     	~FundamentalMatrixEstimator() {}
 
     	// 8 correspondences are needed to determine an fundamental matrix.
-		double SampleSize() const { return 8; }
+		double SampleSize() const { return 9; }
 
 		//std::vector<double> lambdaValues;
 
@@ -45,6 +45,7 @@ class FundamentalMatrixEstimator
 		                 std::vector<Eigen::Matrix3d>* fundamental_matrices) const {
 			std::vector<Eigen::Vector2d> image1_points, image2_points;
 			
+			std::cout << "correspondences size " << correspondences.size() << std::endl;
 
 			//for (int i = 0; i < 8; i++) {
 			for (int i = 0; i < 9; i++) {
@@ -80,6 +81,9 @@ class FundamentalMatrixEstimator
 			for (int i = 0; i < 9; i++) {
 			  image1_points.emplace_back(correspondences[i].feature1);
 			  image2_points.emplace_back(correspondences[i].feature2);
+
+			  //std::cout << "image1 point " << correspondences[i].feature1 << std::endl;
+			  //std::cout << "image2 point " << correspondences[i].feature2 << std::endl;
 			}
 
 

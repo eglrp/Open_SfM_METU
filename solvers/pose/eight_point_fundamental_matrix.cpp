@@ -409,10 +409,14 @@ bool NormalizedEightPointFundamentalMatrixWithRadialDistortion(
 	  std::vector<Vector2d> norm_img1_points(image_1_points.size());
 	  std::vector<Vector2d> norm_img2_points(image_2_points.size());
 
-	  // Normalize the image points.
+	  // Normalize the image points. Method 1
 	  Matrix3d img1_norm_mat, img2_norm_mat;
 	  NormalizeImagePoints(image_1_points, &norm_img1_points, &img1_norm_mat);
 	  NormalizeImagePoints(image_2_points, &norm_img2_points, &img2_norm_mat);
+
+	  //std::cout << "Method 1 UNnormalized points " << image_1_points[8] << std::endl;
+	  //std::cout << "Method 1 normalized points " << norm_img1_points[8] << std::endl;
+
 
 
 	  // Constraint matrix D1
@@ -619,7 +623,7 @@ bool NormalizedEightPointFundamentalMatrixWithRadialDistortion(
   	  			
   	  			if(!std::isnan(E_result(i).real()) && !std::isinf(E_result(i).real())){
 
-  	  				if((std::abs(E_result(i).real())) < 10 ){
+  	  				if((std::abs(E_result(i).real())) > 0.1 ){
 
   	  					real_E_result(i) = E_result(i).real();
 

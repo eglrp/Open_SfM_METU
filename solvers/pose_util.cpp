@@ -1,7 +1,7 @@
 
 
 
-
+#include <iostream>
 
 #include "Open_SfM_METU/solvers/pose_util.hpp"
 
@@ -47,6 +47,48 @@ Eigen::Matrix3d CrossProductMatrix(const Vector3d& cross_vec) {
   return cross;
 }
 
+
+// Given a 2xN matrix image points. This functionnormalize the image pixels
+// so that (0,0) point is at the image center. This is method 2.
+bool NormalizeImagePoints_M2(
+    const std::vector<Eigen::Vector2d>& image_points,
+    std::vector<Eigen::Vector2d>* normalized_image_points){
+
+    normalized_image_points->resize(image_points.size());
+
+    Eigen::Map<const Matrix<double, 2, Eigen::Dynamic> > image_points_mat( image_points[0].data(), 2, image_points.size());
+
+    std::cout << "point check " << image_points[image_points.size()-2] << std::endl;
+    std::cout << "point check " << image_points[image_points.size()-1] << std::endl;
+    std::cout << "Mat check " << std::endl;
+    std::cout <<  image_points_mat << std::endl;
+
+    Eigen::Matrix<double, 2, 1> m_1;
+      m_1(0,0) = 960;
+      m_1(1,0) = 540;
+    Eigen::Matrix<double, 2, 1> m_2;
+      m_2(0,0) = 1.0f/1920;
+      m_2(1,0) = 1.0f/1080;
+
+    for(int i = 0; i < image_points.size(); i++){
+
+      //std::cout << "col mat " << image_points_mat.col(i) << std::endl;
+      //std::cout << "diff mat " <<  m_1 << std::endl;
+      //std::cout << "res mat " << image_points_mat.col(i) - m_1 << std::endl;
+      Eigen::Matrix<double, 2, 1> t_M;
+      t_M =  image_points_mat.col(i) - m_1;
+      t_M = (t_M.array() * m_2.array()).matrix();
+      //image_points_mat.col(i) = image_points_mat.col(i) - m_1;
+      //image_points_mat.col(i) = (image_points_mat.col(i).array() * temp_vec_2.array()).matrix();
+
+    }
+
+
+    return true;
+
+}
+
+
 // Computes the normalization matrix transformation that centers image points
 // around the origin with an average distance of sqrt(2) to the centroid.
 // Returns the transformation matrix and the transformed points. This assumes
@@ -58,6 +100,10 @@ bool NormalizeImagePoints(
   Eigen::Map<const Matrix<double, 2, Eigen::Dynamic> > image_points_mat(
       image_points[0].data(), 2, image_points.size());
 
+  std::cout <<  "image_points_mat" << std::endl;
+  std::cout <<  image_points_mat << std::endl;
+
+
   // Allocate the output vector and map an Eigen object to the underlying data
   // for efficient calculations.
   normalized_image_points->resize(image_points.size());
@@ -65,8 +111,11 @@ bool NormalizeImagePoints(
       normalized_image_points_mat((*normalized_image_points)[0].data(), 2,
                                   image_points.size());
 
+
   // Compute centroid.
   const Vector2d centroid(image_points_mat.rowwise().mean());
+
+  //std::cout << "centroid = " << centroid << std::endl;
 
   // Calculate average RMS distance to centroid.
   const double rms_mean_dist =
