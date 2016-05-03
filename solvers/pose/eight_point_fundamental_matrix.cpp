@@ -18,6 +18,10 @@
 #include <functional>
 
 #include "Open_SfM_METU/solvers/pose_util.hpp"
+#include "Open_SfM_METU/solvers/random.hpp"
+
+#include "Open_SfM_METU/calibration/camera_utils.hpp"
+
 
 
 namespace Open_SfM_METU {
@@ -561,17 +565,17 @@ bool NormalizedEightPointFundamentalMatrixWithRadialDistortion(
 	  constraint_matrix_D2_result = constraint_matrix_D1.transpose() * constraint_matrix_D2;
   	  constraint_matrix_D3_result = constraint_matrix_D1.transpose() * constraint_matrix_D3;
 
+  	  
   	  /*
-
   	  std::cout << "D1 matrix is " << std::endl;
   	  std::cout << constraint_matrix_D1 << std::endl;
   	  std::cout << "D2 matrix is " << std::endl;
   	  std::cout << constraint_matrix_D2 << std::endl;
   	  std::cout << "D3 matrix is " << std::endl;
   	  std::cout << constraint_matrix_D3 << std::endl;
-
 	  */
 	  
+
 
   	  std::vector<Eigen::MatrixXd> input_matrices_vec;
   	  input_matrices_vec.push_back(constraint_matrix_D3_result);
@@ -593,13 +597,13 @@ bool NormalizedEightPointFundamentalMatrixWithRadialDistortion(
 
   	  	//std::cout << "polyeig is calculated" << std::endl;
 
-		/*  	  	
+			
   	  	std::cout << "The eigenvalues of sta_EVP are:" << std::endl;
   	  	std::cout << E_result<< std::endl;
 
   	  	std::cout << "The eigenvectors of sta_EVP are:" << std::endl;
   	  	std::cout << X_result<< std::endl;
-		*/
+		
 		
 
   	  	// unaryExp ile hem real olan eigenvaluelari bulup onlarin da nan ve inf olanlarini atabilir miyiz. 
@@ -645,7 +649,7 @@ bool NormalizedEightPointFundamentalMatrixWithRadialDistortion(
 
   	  	}
 
-  	    //std::cout << "real E_result after change " << real_E_result << std::endl;
+  	    std::cout << "real E_result after change " << real_E_result << std::endl;
 
 
 
@@ -716,6 +720,65 @@ bool NormalizedEightPointFundamentalMatrixWithRadialDistortion(
 
 	  return true;
 
+}
+
+
+bool NormalizedEightPointFundamentalMatrixWithRadialDistortionAndFocalLength(
+    const std::vector<Eigen::Vector2d>& image_1_points,
+    const std::vector<Eigen::Vector2d>& image_2_points,
+    Eigen::Matrix3d* fundamental_matrix,
+    std::vector<double>& lambdaValues,
+    int imageWidth,
+    int numCorr){
+
+
+	//std::cout << "inside NormalizedEightPointFundamentalMatrixWithRadialDistortionAndFocalLength " << std::endl;
+
+	CHECK_EQ(image_1_points.size(), image_2_points.size());
+	
+	CHECK_GE(image_1_points.size(), numCorr);
+
+	int lowerAFOV = 50;
+	int upperAFOV = 170;
+
+	
+
+
+	// iteration sayisini ransac parametreden alalim	
+	for(int i = 1; i <= 500; ++i){
+
+
+		int AFOV_rnd = RandInt(lowerAFOV, upperAFOV);
+		
+		std::cout << " rand FOV is " << AFOV_rnd << std::endl;
+
+		double f_temp = camera::afov2focal(AFOV_rnd,imageWidth);
+
+		// Burada gelen 200 noktadan 10 tanesini random secmeliyiz
+
+		std::vector<int> rndVec_ind;
+		RandIntVec(1, numCorr, rndVec_ind); // Burada CHECK lerden birini kullanalim yukaridaki gibi glog !!! 
+
+		/*
+		std::cout << " random index vector " << std::endl;
+		for(int p = 1; p<= rndVec_ind.size(); ++p){
+			std::cout << rndVec_ind[p] << " _ " ;
+		}
+		std::cout << std::endl;
+		*/
+
+		// Burada random vectorden ilk 10 taneyi alalim. ve correspondence lari yaratalim. buradan bu corr lari 
+		// bir fonksiyona gonderelim o da once matrisleri olustursun sonra da polyeig den lamdalari elde edelim. 
+
+
+
+
+ 	
+ 	}
+
+
+
+	return true;
 }
 
 }

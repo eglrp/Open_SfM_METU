@@ -36,7 +36,8 @@ class FundamentalMatrixEstimator
     	~FundamentalMatrixEstimator() {}
 
     	// 8 correspondences are needed to determine an fundamental matrix.
-		double SampleSize() const { return 9; }
+		double SampleSize() const { return 8; }
+		//double SampleSize() const { return 200; }
 
 		//std::vector<double> lambdaValues;
 
@@ -45,7 +46,7 @@ class FundamentalMatrixEstimator
 		                 std::vector<Eigen::Matrix3d>* fundamental_matrices) const {
 			std::vector<Eigen::Vector2d> image1_points, image2_points;
 			
-			std::cout << "correspondences size " << correspondences.size() << std::endl;
+			//std::cout << "correspondences size " << correspondences.size() << std::endl;
 
 			//for (int i = 0; i < 8; i++) {
 			for (int i = 0; i < 9; i++) {
@@ -57,15 +58,15 @@ class FundamentalMatrixEstimator
 
 			Eigen::Matrix3d fmatrix;
 			std::vector<double> lambdaValues;
-			//if (!NormalizedEightPointFundamentalMatrix(image1_points, image2_points, &fmatrix)) {
-			if (!NormalizedEightPointFundamentalMatrixWithRadialDistortion(image1_points, image2_points, &fmatrix, lambdaValues)) {
+			if (!NormalizedEightPointFundamentalMatrix(image1_points, image2_points, &fmatrix)) {
+			//if (!NormalizedEightPointFundamentalMatrixWithRadialDistortion(image1_points, image2_points, &fmatrix, lambdaValues)) {
 			        
 				
 			  	return false; 
 			}		
 
 			//std::cout << "lambda values size " << std::endl;
-			std::cout << " size of lambda vector = > " <<lambdaValues.size() << std::endl;
+			//std::cout << " size of lambda vector = > " <<lambdaValues.size() << std::endl;
 
 			fundamental_matrices->emplace_back(fmatrix);
 			return true;
@@ -109,6 +110,53 @@ class FundamentalMatrixEstimator
 			
 
 			fundamental_matrices->emplace_back(fmatrix);
+			return true;
+		}
+
+
+		bool EstimateModel(const std::vector<matching::FeatureCorrespondence>& correspondences,
+		                 std::vector<Eigen::Matrix3d>* fundamental_matrices, std::vector<double>* l_values, int imageWidth, int numCorr) const {
+
+
+			// std::cout << "image width is " << imageWidth << std::endl;
+
+			std::vector<Eigen::Vector2d> image1_points, image2_points;
+
+			//for (int i = 0; i < 8; i++) {
+			for (int i = 0; i < numCorr ; i++) {
+			  image1_points.emplace_back(correspondences[i].feature1);
+			  image2_points.emplace_back(correspondences[i].feature2);
+
+			  //std::cout << "image1 point " << correspondences[i].feature1 << std::endl;
+			  //std::cout << "image2 point " << correspondences[i].feature2 << std::endl;
+			}
+
+
+
+			Eigen::Matrix3d fmatrix;
+			std::vector<double> lambdaValues;
+			//if (!NormalizedEightPointFundamentalMatrix(image1_points, image2_points, &fmatrix)) {
+			if (!NormalizedEightPointFundamentalMatrixWithRadialDistortionAndFocalLength(image1_points, image2_points, &fmatrix, lambdaValues,imageWidth, numCorr)) {
+			        
+				
+			  	return false; 
+			}		
+
+			//std::cout << "lambda values size " << std::endl;
+			//std::cout << " size of lambda vector = > " <<lambdaValues.size() << std::endl;
+
+			for(int i = 0; i< lambdaValues.size(); ++i){
+
+				l_values->emplace_back(lambdaValues[i]);
+
+			}
+
+			
+
+			fundamental_matrices->emplace_back(fmatrix);
+
+
+
 			return true;
 		}
 

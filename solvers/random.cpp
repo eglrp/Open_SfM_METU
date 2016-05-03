@@ -40,6 +40,17 @@ double RandGaussian(double mean, double std_dev) {
   return distribution(util_generator);
 }
 
+// Get a random int between lower and upper (inclusive) and store them in a vector.
+bool RandIntVec(int lower, int upper, std::vector<int>& rndVec){
+
+
+	for (int k=lower; k<=upper; ++k) rndVec.push_back(k); 
+
+	std::random_shuffle ( rndVec.begin(), rndVec.end() );
+
+	return true; 
+}
+
 
 
 }

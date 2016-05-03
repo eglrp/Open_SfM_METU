@@ -100,8 +100,8 @@ bool NormalizeImagePoints(
   Eigen::Map<const Matrix<double, 2, Eigen::Dynamic> > image_points_mat(
       image_points[0].data(), 2, image_points.size());
 
-  std::cout <<  "image_points_mat" << std::endl;
-  std::cout <<  image_points_mat << std::endl;
+  //std::cout <<  "image_points_mat" << std::endl;
+  //std::cout <<  image_points_mat << std::endl;
 
 
   // Allocate the output vector and map an Eigen object to the underlying data

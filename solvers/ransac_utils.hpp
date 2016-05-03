@@ -76,6 +76,22 @@ struct RansacParameters {
 	// NOTE: Not currently implemented!
 	bool use_Tdd_test;
 
+
+	// During the RANSAC aided pose estimation, image width and height will be used 
+	// in order to estimate radial distortion parameter and focal length, respectively. 
+
+	int image_width; 
+	int image_height; 
+
+
+	// This number of correspondences is used in the estiamtion algorithm for radial distortion parameter and focal length
+	int num_pointCorr; 
+
+	// This iteration number is used in the estiamtion algorithm for radial distortion parameter and focal length
+	int ite_num;
+
+	// This min number is used in the estiamtion algorithm for radial distortion parameter and focal length
+	int min_num;
 };
 
 // A struct to hold useful outputs of Ransac-like methods.

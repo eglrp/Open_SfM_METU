@@ -192,17 +192,27 @@ bool SampleConsensusEstimator<ModelEstimator>::Estimate(
     // Estimate model from subset. Skip to next iteration if the model fails to
     // estimate.
     std::vector<Model> temp_models;
-    /*
+    
+
     if (!estimator_.EstimateModel(data_subset, &temp_models)) {
+      continue;
+    }
+    
+
+    //std::vector<double> l_values_inside;
+
+    /*
+    if (!estimator_.EstimateModel(data_subset, &temp_models, all_l_vals)) {
       continue;
     }
     */
 
-    //std::vector<double> l_values_inside;
-
-    if (!estimator_.EstimateModel(data_subset, &temp_models, all_l_vals)) {
+    /*
+    if (!estimator_.EstimateModel(data_subset, &temp_models, all_l_vals,ransac_params_.image_width, ransac_params_.num_pointCorr)) {
       continue;
     }
+    */
+
 
     // Calculate residuals from estimated model.
     for (const Model& temp_model : temp_models) {
@@ -249,7 +259,6 @@ bool SampleConsensusEstimator<ModelEstimator>::Estimate(
   summary->confidence =
       1.0 - pow(1.0 - pow(inlier_ratio, estimator_.SampleSize()),
                 summary->num_iterations);
-
 
 
   return true;

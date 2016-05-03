@@ -5,6 +5,7 @@
 #include <Eigen/Core>
 #include <vector>
 
+
 namespace Open_SfM_METU {
 namespace solvers {
 
@@ -37,6 +38,15 @@ bool NormalizedEightPointFundamentalMatrixWithRadialDistortion(
     const std::vector<Eigen::Vector2d>& image_2_points,
     Eigen::Matrix3d* fundamental_matrix,
     std::vector<double>& lambdaValues);
+
+bool NormalizedEightPointFundamentalMatrixWithRadialDistortionAndFocalLength(
+    const std::vector<Eigen::Vector2d>& image_1_points,
+    const std::vector<Eigen::Vector2d>& image_2_points,
+    Eigen::Matrix3d* fundamental_matrix,
+    std::vector<double>& lambdaValues,
+    int imageWidth,
+    int numCorr);
+
 
 
 }
