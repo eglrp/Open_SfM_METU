@@ -324,7 +324,7 @@ bool polyEig(std::vector<Eigen::MatrixXd> _input_matrices_vec, int n_value, int 
 bool EstimateFocalLengthAndRadialDistortionPairs(
     const RansacParameters& ransac_params,
     const RansacType& ransac_type,
-    const std::vector<matching::FeatureCorrespondence>& unnormalized_correspondences,
+    std::vector<matching::FeatureCorrespondence>& unnormalized_correspondences,
     Eigen::Matrix3d* fundamental_matrix,
     RansacSummary* ransac_summary,
     std::vector<double>* all_l_values,
@@ -354,9 +354,14 @@ bool EstimateFocalLengthAndRadialDistortionPairs(
 
 	Eigen::MatrixXi indexMat = randomMatrixGenerator(n_row, n_col, min_val, max_val);
 
-	VLOG(2) << "FOV is " << FOV_interval->at(0) << std::endl;
 
-	double f_temp = camera::afov2focal((double)(FOV_interval->at(0)),ransac_params.image_width);
+for (int id_focal = 0; id_focal < FOV_interval->size(); id_focal++){
+
+
+	VLOG(2) << "FOV is " << FOV_interval->at(id_focal) << std::endl;
+
+	// akin double f_temp = camera::afov2focal((double)(FOV_interval->at(0)),ransac_params.image_width);
+	double f_temp = camera::afov2focal((double)(FOV_interval->at(id_focal)),ransac_params.image_width);
 
 	VLOG(2) << "focal length is " << f_temp << std::endl;
 
@@ -619,7 +624,7 @@ bool EstimateFocalLengthAndRadialDistortionPairs(
 
 	*/
 
-
+	
 	//VLOG(2) << "Size of lambdaValues " << lambdaValues.size();
 	//VLOG(2) << "Median value of calculated eigen values is " << median;
 
@@ -629,7 +634,121 @@ bool EstimateFocalLengthAndRadialDistortionPairs(
 	all_f_values->push_back(f_temp);
 
 
-	// bu degeri bir cizdirelim. 
+
+}
+
+// Estimate the Fundamental Matrix from undistorted, matched image coordinates
+
+	// undistort the image correspondences 
+
+	// std::vector<matching::FeatureCorrespondence>& unnormalized_correspondences 
+
+	
+	Eigen::Matrix3d K_mat;
+	double f_t = all_f_values->at(1);
+	double px_t = ransac_params.image_width  / 2.0f;
+	double py_t = ransac_params.image_height / 2.0f;
+	K_mat << f_t, 0.0, px_t,
+	     0.0, f_t, py_t,
+	     0.0, 0.0, 1;
+
+	double lambda_f_est = all_l_values->at(1);
+
+
+
+	for(int corr_ind = 0; corr_ind < unnormalized_correspondences.size(); corr_ind++){
+
+		matching::FeatureCorrespondence temp_Feat_Corr;
+
+		//////////////
+		// Frame 0
+		/////////////
+
+		Eigen::Vector3d temp_IN_3Dpoint_1;
+    	Eigen::Vector3d temp_OUT_3Dpoint_1;
+    	Eigen::Vector2d temp_IN_2D_point_1;
+    	Eigen::Vector2d temp_OUT_2D_point_1;
+
+		temp_IN_3Dpoint_1 << unnormalized_correspondences.at(corr_ind).feature1(0),
+							unnormalized_correspondences.at(corr_ind).feature1(1), 1;
+		
+		temp_OUT_3Dpoint_1 =  K_mat.inverse() * temp_IN_3Dpoint_1;
+
+		temp_IN_2D_point_1(0) = temp_OUT_3Dpoint_1(0);
+		temp_IN_2D_point_1(1) = temp_OUT_3Dpoint_1(1);
+
+		if(camera::undistortImagePoint(temp_IN_2D_point_1, temp_OUT_2D_point_1, lambda_f_est)){
+			VLOG(3) << "point from frame 0 is undistorted";
+		}
+
+		Eigen::Vector3d temp_3D_IN_res_1;
+		Eigen::Vector3d temp_3D_OUT_res_1;
+		temp_3D_IN_res_1 << temp_OUT_2D_point_1(0), temp_OUT_2D_point_1(1), 1;
+
+		temp_3D_OUT_res_1 = K_mat * temp_3D_IN_res_1;		
+
+		matching::Feature feature1; 
+		feature1 << temp_3D_OUT_res_1(0), temp_3D_OUT_res_1(1);
+		temp_Feat_Corr.feature1 = feature1;
+
+		//unnormalized_correspondences.at(corr_ind).feature1(0) = temp_3D_OUT_res_1(0);
+		//unnormalized_correspondences.at(corr_ind).feature1(1) = temp_3D_OUT_res_1(1);
+
+		//////////////
+		// Frame 1
+		/////////////
+
+		Eigen::Vector3d temp_IN_3Dpoint_2;
+    	Eigen::Vector3d temp_OUT_3Dpoint_2;
+    	Eigen::Vector2d temp_IN_2D_point_2;
+    	Eigen::Vector2d temp_OUT_2D_point_2;
+
+
+    	temp_IN_3Dpoint_2 << unnormalized_correspondences.at(corr_ind).feature2(0),
+							unnormalized_correspondences.at(corr_ind).feature2(1), 1;
+
+		temp_OUT_3Dpoint_2 = K_mat.inverse() * temp_IN_3Dpoint_2;
+
+		temp_IN_2D_point_2(0) = temp_OUT_3Dpoint_2(0);
+		temp_IN_2D_point_2(1) = temp_OUT_3Dpoint_2(1);
+
+
+		if(camera::undistortImagePoint(temp_IN_2D_point_2, temp_OUT_2D_point_2, lambda_f_est)){
+			VLOG(3) << "point from frame 1 is undistorted";
+		}
+
+		Eigen::Vector3d temp_3D_IN_res_2;
+		Eigen::Vector3d temp_3D_OUT_res_2;
+		temp_3D_IN_res_2 << temp_OUT_2D_point_2(0), temp_OUT_2D_point_2(1), 1;
+
+		temp_3D_OUT_res_2 = K_mat * temp_3D_IN_res_2;	
+
+		matching::Feature feature2; 
+		feature2 << temp_3D_OUT_res_2(0), temp_3D_OUT_res_2(1);
+		temp_Feat_Corr.feature2 = feature2;	
+
+		//unnormalized_correspondences.at(corr_ind).feature2(0) = temp_3D_OUT_res_2(0);
+		//unnormalized_correspondences.at(corr_ind).feature2(1) = temp_3D_OUT_res_2(1);
+
+		// unnormalized_corr icine nasil ekleyecegiz pointlerin yeni halini. bir de bu noktalar 
+		// integer a cast olmali coordinate olabilmek icin. 
+
+		unnormalized_correspondences.at(corr_ind) = temp_Feat_Corr;
+
+	}
+
+
+	// input to F estimation  
+
+
+
+
+	// Estimate the focal length from Fundamental Matrix using both Sturm and Our Method
+
+
+
+
+
 
 	return true; 
 

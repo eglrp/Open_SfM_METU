@@ -4,6 +4,10 @@
 #include <Eigen/Core>
 #include <vector>
 
+#include <glog/logging.h>
+
+#include "Open_SfM_METU/image/image.hpp"
+
 namespace Open_SfM_METU {
 namespace camera {
 
@@ -22,7 +26,9 @@ double focal2afov(double focal, double h);
 
 // The given coordinates are assummed to be normalized coordinates. 
 
-bool umdistortImagePoint(Eigen::Vector2d& inputCorrd, Eigen::Vector2d& outputCorrd);
+bool undistortImage(image::Image<unsigned char>& inputImage, image::Image<unsigned char>& outputImage, Eigen::Matrix3d& K_mat, double lambda);
+
+bool undistortImagePoint(Eigen::Vector2d& norm_inputPoint2d, Eigen::Vector2d& norm_outputPoint2d, double lambda);
 
 
 } // camera

@@ -22,13 +22,12 @@ namespace solvers {
 bool EstimateFocalLengthAndRadialDistortionPairs(
     const RansacParameters& ransac_params,
     const RansacType& ransac_type,
-    const std::vector<matching::FeatureCorrespondence>& unnormalized_correspondences,
+    std::vector<matching::FeatureCorrespondence>& unnormalized_correspondences,
     Eigen::Matrix3d* essential_matrix,
     RansacSummary* ransac_summary,
     std::vector<double>* all_l_values,
     std::vector<double>* all_f_values,
     std::vector<int>* FOV_interval);
-
 
 }
 }
