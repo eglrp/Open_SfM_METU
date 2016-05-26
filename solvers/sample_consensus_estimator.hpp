@@ -178,6 +178,8 @@ bool SampleConsensusEstimator<ModelEstimator>::Estimate(
                              ransac_params_.min_inlier_ratio,
                              log_failure_prob),
         ransac_params_.max_iterations);
+
+    VLOG(2) << "max_iterations = " <<  max_iterations;
   }
 
   for (summary->num_iterations = 0;
@@ -243,8 +245,10 @@ bool SampleConsensusEstimator<ModelEstimator>::Estimate(
                                                        log_failure_prob),
                                   max_iterations);
 
-        VLOG(3) << "Inlier ratio = " << inlier_ratio
+        VLOG(2) << "Inlier ratio = " << inlier_ratio
                 << " and max number of iterations = " << max_iterations;
+
+        VLOG(2) << "Best Cost is " << best_cost;
       }
     }
   }
@@ -259,6 +263,9 @@ bool SampleConsensusEstimator<ModelEstimator>::Estimate(
   summary->confidence =
       1.0 - pow(1.0 - pow(inlier_ratio, estimator_.SampleSize()),
                 summary->num_iterations);
+
+
+  VLOG(2) << "confidence is = " << summary->confidence ;
 
 
   return true;

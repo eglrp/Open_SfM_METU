@@ -9,7 +9,7 @@
 #include "Open_SfM_METU/solvers/create_and_initialize_ransac_variant.hpp"
 #include "Open_SfM_METU/solvers/estimator.hpp"
 
-
+	
 namespace Open_SfM_METU {
 namespace solvers {
 
@@ -23,7 +23,7 @@ bool EstimateFocalLengthAndRadialDistortionPairs(
     const RansacParameters& ransac_params,
     const RansacType& ransac_type,
     std::vector<matching::FeatureCorrespondence>& unnormalized_correspondences,
-    Eigen::Matrix3d* essential_matrix,
+    Eigen::Matrix3d* fundamental_matrix,
     RansacSummary* ransac_summary,
     std::vector<double>* all_l_values,
     std::vector<double>* all_f_values,

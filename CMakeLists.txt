@@ -4,6 +4,7 @@ add_subdirectory (feature)
 add_subdirectory (nonfree)
 add_subdirectory (matching)
 add_subdirectory (solvers)
+add_subdirectory (math)
 
 
 #INSTALL RULES

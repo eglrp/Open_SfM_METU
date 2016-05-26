@@ -18,9 +18,13 @@
 #include "Open_SfM_METU/solvers/util_util.hpp"
 #include "Open_SfM_METU/solvers/estimate_focal_length_and_rad_dist_pairs.hpp"
 
+#include "Open_SfM_METU/solvers/pose/eight_point_fundamental_matrix_v2.hpp"
+#include "Open_SfM_METU/solvers/estimate_focal_length_trace_const.hpp"
+
+
+
 #include "Open_SfM_METU/solvers/random.hpp"
 #include "Open_SfM_METU/calibration/camera_utils.hpp"
-
 
 #include <glog/logging.h>
 
@@ -32,6 +36,84 @@
 
 namespace Open_SfM_METU {
 namespace solvers {
+
+namespace {
+
+
+// An estimator for computing the fundamental matrix from 8 feature
+// correspondences. The feature correspondences should be in pixel coordinates.
+
+class FundamentalMatrixEstimator_F
+    : public Estimator<matching::FeatureCorrespondence, Eigen::Matrix3d> {
+
+
+    public:
+    	FundamentalMatrixEstimator_F() {}
+    	~FundamentalMatrixEstimator_F() {}
+
+    	// 8 correspondences are needed to determine an fundamental matrix.
+		double SampleSize() const { return 8; }
+
+		//std::vector<double> lambdaValues;
+
+		// Estimates candidate fundamental matrices from correspondences.
+		bool EstimateModel(const std::vector<matching::FeatureCorrespondence>& correspondences,
+		                 std::vector<Eigen::Matrix3d>* fundamental_matrices) const {
+			std::vector<Eigen::Vector2d> image1_points, image2_points;
+			
+			//std::cout << "correspondences size " << correspondences.size() << std::endl;
+
+			for (int i = 0; i < 8; i++) {
+			  image1_points.emplace_back(correspondences[i].feature1);
+			  image2_points.emplace_back(correspondences[i].feature2);
+			}
+
+
+			Eigen::Matrix3d fmatrix;
+			std::vector<double> lambdaValues;
+			if (!NormalizedEightPointFundamentalMatrix_v2(image1_points, image2_points, &fmatrix)) {
+			//if (!NormalizedEightPointFundamentalMatrixWithRadialDistortion(image1_points, image2_points, &fmatrix, lambdaValues)) {
+			        
+				
+			  	return false; 
+			}		
+
+			//std::cout << "lambda values size " << std::endl;
+			//std::cout << " size of lambda vector = > " <<lambdaValues.size() << std::endl;
+
+			fundamental_matrices->emplace_back(fmatrix);
+			return true;
+		}
+
+				// Estimates candidate fundamental matrices from correspondences.
+		bool EstimateModel(const std::vector<matching::FeatureCorrespondence>& correspondences,
+		                 std::vector<Eigen::Matrix3d>* fundamental_matrices, std::vector<double>* l_values) const {
+
+			return true;
+		}
+
+		bool EstimateModel(const std::vector<matching::FeatureCorrespondence>& correspondences,
+		                 std::vector<Eigen::Matrix3d>* fundamental_matrices, std::vector<double>* l_values, int imageWidth, int numCorr) const {
+
+			return true;
+		}
+
+		// The error for a correspondences given a model. This is the squared sampson
+		// error.
+		double Error(const matching::FeatureCorrespondence& correspondence,
+		           const Eigen::Matrix3d& fundamental_matrix) const {
+			return SquaredSampsonDistance(fundamental_matrix,
+		                              correspondence.feature1,
+		                              correspondence.feature2);
+  		}
+
+  	private:
+  		DISALLOW_COPY_AND_ASSIGN(FundamentalMatrixEstimator_F);
+
+
+};
+
+} // namespace
 
 int lowerLimit = 0;
 int upperLimit = 0;
@@ -320,7 +402,6 @@ bool polyEig(std::vector<Eigen::MatrixXd> _input_matrices_vec, int n_value, int 
 }
 
 
-
 bool EstimateFocalLengthAndRadialDistortionPairs(
     const RansacParameters& ransac_params,
     const RansacType& ransac_type,
@@ -434,13 +515,18 @@ for (int id_focal = 0; id_focal < FOV_interval->size(); id_focal++){
 
 			int index_point = indexMat(ind_it,p);
 
+			
+
 			sel_corr_0(0,p) = unnormalized_correspondences.at(index_point).feature1(0);
 			sel_corr_0(1,p) = unnormalized_correspondences.at(index_point).feature1(1);
 			sel_corr_0(2,p) = 1;
 
 			sel_corr_1(0,p) = unnormalized_correspondences.at(index_point).feature2(0);
 			sel_corr_1(1,p) = unnormalized_correspondences.at(index_point).feature2(1);
-			sel_corr_1(2,p) = 1;			
+			sel_corr_1(2,p) = 1;	
+
+			
+			
 
 		}
 
@@ -637,6 +723,33 @@ for (int id_focal = 0; id_focal < FOV_interval->size(); id_focal++){
 
 }
 
+
+
+	// Unnormalized Coordinates before undistortion 
+
+	
+
+	std::cout << "frame 0 is " << std::endl;
+
+
+	for(int ind_k = 0; ind_k < unnormalized_correspondences.size(); ind_k++){
+
+		std::cout << unnormalized_correspondences.at(ind_k).feature1(0) << "," << unnormalized_correspondences.at(ind_k).feature1(1) << ";" ;
+
+	}
+
+	std::cout << "frame 1 is " << std::endl;
+
+	for(int ind_k = 0; ind_k < unnormalized_correspondences.size(); ind_k++){
+
+		std::cout << unnormalized_correspondences.at(ind_k).feature2(0) << "," << unnormalized_correspondences.at(ind_k).feature2(1) << ";" ;
+
+	}
+
+	
+
+
+
 // Estimate the Fundamental Matrix from undistorted, matched image coordinates
 
 	// undistort the image correspondences 
@@ -654,11 +767,21 @@ for (int id_focal = 0; id_focal < FOV_interval->size(); id_focal++){
 
 	double lambda_f_est = all_l_values->at(1);
 
+	VLOG(2) << "f value = " << f_t;
+	VLOG(2) << "l value = " << lambda_f_est;
 
+	std::vector<matching::FeatureCorrespondence> unnormalized_correspondences_undistorted;
 
 	for(int corr_ind = 0; corr_ind < unnormalized_correspondences.size(); corr_ind++){
 
-		matching::FeatureCorrespondence temp_Feat_Corr;
+		/*
+
+		std::cout << "old value Frame 0" << std::endl;
+		std::cout << unnormalized_correspondences.at(corr_ind).feature1(0) << " ___ " << 
+				unnormalized_correspondences.at(corr_ind).feature1(1) << std::endl;
+
+		*/
+
 
 		//////////////
 		// Frame 0
@@ -669,16 +792,18 @@ for (int id_focal = 0; id_focal < FOV_interval->size(); id_focal++){
     	Eigen::Vector2d temp_IN_2D_point_1;
     	Eigen::Vector2d temp_OUT_2D_point_1;
 
+	
 		temp_IN_3Dpoint_1 << unnormalized_correspondences.at(corr_ind).feature1(0),
 							unnormalized_correspondences.at(corr_ind).feature1(1), 1;
-		
+
+
 		temp_OUT_3Dpoint_1 =  K_mat.inverse() * temp_IN_3Dpoint_1;
 
 		temp_IN_2D_point_1(0) = temp_OUT_3Dpoint_1(0);
 		temp_IN_2D_point_1(1) = temp_OUT_3Dpoint_1(1);
 
 		if(camera::undistortImagePoint(temp_IN_2D_point_1, temp_OUT_2D_point_1, lambda_f_est)){
-			VLOG(3) << "point from frame 0 is undistorted";
+			//VLOG(3) << "point from frame 0 is undistorted";
 		}
 
 		Eigen::Vector3d temp_3D_IN_res_1;
@@ -687,12 +812,15 @@ for (int id_focal = 0; id_focal < FOV_interval->size(); id_focal++){
 
 		temp_3D_OUT_res_1 = K_mat * temp_3D_IN_res_1;		
 
-		matching::Feature feature1; 
-		feature1 << temp_3D_OUT_res_1(0), temp_3D_OUT_res_1(1);
-		temp_Feat_Corr.feature1 = feature1;
+		
 
-		//unnormalized_correspondences.at(corr_ind).feature1(0) = temp_3D_OUT_res_1(0);
-		//unnormalized_correspondences.at(corr_ind).feature1(1) = temp_3D_OUT_res_1(1);
+
+
+		unnormalized_correspondences.at(corr_ind).feature1(0) = temp_3D_OUT_res_1(0) - px_t;
+		unnormalized_correspondences.at(corr_ind).feature1(1) = temp_3D_OUT_res_1(1) - py_t;
+
+
+
 
 		//////////////
 		// Frame 1
@@ -704,9 +832,11 @@ for (int id_focal = 0; id_focal < FOV_interval->size(); id_focal++){
     	Eigen::Vector2d temp_OUT_2D_point_2;
 
 
+				
     	temp_IN_3Dpoint_2 << unnormalized_correspondences.at(corr_ind).feature2(0),
 							unnormalized_correspondences.at(corr_ind).feature2(1), 1;
 
+	
 		temp_OUT_3Dpoint_2 = K_mat.inverse() * temp_IN_3Dpoint_2;
 
 		temp_IN_2D_point_2(0) = temp_OUT_3Dpoint_2(0);
@@ -714,7 +844,7 @@ for (int id_focal = 0; id_focal < FOV_interval->size(); id_focal++){
 
 
 		if(camera::undistortImagePoint(temp_IN_2D_point_2, temp_OUT_2D_point_2, lambda_f_est)){
-			VLOG(3) << "point from frame 1 is undistorted";
+			//VLOG(3) << "point from frame 1 is undistorted";
 		}
 
 		Eigen::Vector3d temp_3D_IN_res_2;
@@ -723,30 +853,123 @@ for (int id_focal = 0; id_focal < FOV_interval->size(); id_focal++){
 
 		temp_3D_OUT_res_2 = K_mat * temp_3D_IN_res_2;	
 
-		matching::Feature feature2; 
-		feature2 << temp_3D_OUT_res_2(0), temp_3D_OUT_res_2(1);
-		temp_Feat_Corr.feature2 = feature2;	
+		
 
-		//unnormalized_correspondences.at(corr_ind).feature2(0) = temp_3D_OUT_res_2(0);
-		//unnormalized_correspondences.at(corr_ind).feature2(1) = temp_3D_OUT_res_2(1);
+		unnormalized_correspondences.at(corr_ind).feature2(0) = temp_3D_OUT_res_2(0) - px_t;
+		unnormalized_correspondences.at(corr_ind).feature2(1) = temp_3D_OUT_res_2(1) - py_t;
 
 		// unnormalized_corr icine nasil ekleyecegiz pointlerin yeni halini. bir de bu noktalar 
 		// integer a cast olmali coordinate olabilmek icin. 
 
-		unnormalized_correspondences.at(corr_ind) = temp_Feat_Corr;
+		// akin unnormalized_correspondences.at(corr_ind) = temp_Feat_Corr;
+
+
+				
+
+		if(temp_3D_OUT_res_1(0) >= 0 && temp_3D_OUT_res_1(0) <= ransac_params.image_width && 
+				temp_3D_OUT_res_1(1) >= 0 && temp_3D_OUT_res_1(1) <= ransac_params.image_height &&
+					temp_3D_OUT_res_2(0) >= 0 && temp_3D_OUT_res_2(0) <= ransac_params.image_width && 
+						temp_3D_OUT_res_2(1) >= 0 && temp_3D_OUT_res_2(1) <= ransac_params.image_height ) {
+
+			matching::FeatureCorrespondence temp_Feat_Corr;
+
+			matching::Feature feature1; 
+			//feature1 << temp_OUT_2D_point_1(0), temp_OUT_2D_point_1(1);
+			feature1 << (temp_3D_OUT_res_1(0) - px_t), (temp_3D_OUT_res_1(1) - py_t);
+			temp_Feat_Corr.feature1 = feature1;
+
+			matching::Feature feature2; 
+			feature2 << (temp_3D_OUT_res_2(0) - px_t), (temp_3D_OUT_res_2(1) - py_t);
+			//feature2 << temp_OUT_2D_point_2(0), temp_OUT_2D_point_2(1);
+			temp_Feat_Corr.feature2 = feature2;	
+
+			unnormalized_correspondences_undistorted.push_back(temp_Feat_Corr);
+
+		}
+
+		
+		
+
+
+		/*
+
+		std::cout << "new value Frame 0 " << std::endl;
+		std::cout << unnormalized_correspondences.at(corr_ind).feature1(0) << " ___ " << 
+					unnormalized_correspondences.at(corr_ind).feature1(1) << std::endl;
+
+		*/
+
 
 	}
 
+	std::cout << "size of correspondence is unnormalized_correspondences =  " << unnormalized_correspondences.size() << std::endl;
+	std::cout << "size of correspondence is unnormalized_correspondences_undistorted = " << unnormalized_correspondences_undistorted.size() << std::endl;
 
-	// input to F estimation  
+
+	/*
+
+	std::cout << "frame 0 is " << std::endl;
 
 
+	for(int ind_k = 0; ind_k < unnormalized_correspondences_undistorted.size(); ind_k++){
 
+		std::cout << unnormalized_correspondences_undistorted.at(ind_k).feature1(0) << "," << unnormalized_correspondences_undistorted.at(ind_k).feature1(1) << ";" <<std::endl;
+
+	}
+
+	std::cout << "frame 1 is " << std::endl;
+
+	for(int ind_k = 0; ind_k < unnormalized_correspondences_undistorted.size(); ind_k++){
+
+		std::cout << unnormalized_correspondences_undistorted.at(ind_k).feature2(0) << "," << unnormalized_correspondences_undistorted.at(ind_k).feature2(1) << ";" << std::endl;
+
+	}
+
+	*/
+
+	// F estimation  
+
+    RansacParameters options_F;
+    options_F.use_mle = false;
+    options_F.error_thresh = 1;
+    options_F.min_inlier_ratio = 0.99;
+    options_F.min_iterations = 300;
+    options_F.failure_probability = 0.01;
+    options_F.image_height = ransac_params.image_height;
+    options_F.image_width = ransac_params.image_width;
+    options_F.num_pointCorr = 200;
+    options_F.ite_num = 1000;
+    options_F.min_num = 10;
+	
+
+
+	Eigen::Matrix3d F_matrix;
+    RansacSummary ransac_summary_F;
+    std::vector<double> result_all_eig_values;
+
+
+    FundamentalMatrixEstimator_F fundamental_matrix_estimator;
+	std::unique_ptr<SampleConsensusEstimator<FundamentalMatrixEstimator_F> >
+	  ransac = CreateAndInitializeRansacVariant(RansacType::RANSAC,
+	                                            options_F,
+	                                            fundamental_matrix_estimator);
+
+	bool result = ransac->Estimate(unnormalized_correspondences_undistorted,
+	                      &F_matrix,
+	                      &ransac_summary_F,
+	                      &result_all_eig_values);
+
+
+	std::cout << "F matrix is " << F_matrix << std::endl;
 
 	// Estimate the focal length from Fundamental Matrix using both Sturm and Our Method
 
+	double f_length;
+	if(EstimateFocalLengthTraceConst(F_matrix, f_length)){
 
-
+		std::cout << "focal length is estimated" << std::endl;
+	}
+	
 
 
 
