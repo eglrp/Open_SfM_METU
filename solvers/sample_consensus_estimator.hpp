@@ -228,10 +228,14 @@ bool SampleConsensusEstimator<ModelEstimator>::Estimate(
       const double inlier_ratio = static_cast<double>(inlier_indices.size()) /
                                   static_cast<double>(data.size());
 
+
       // Update best model if error is the best we have seen.
       if (sample_cost < best_cost) {
         *best_model = temp_model;
         best_cost = sample_cost;
+
+        VLOG(2) << "Inlier size = " << inlier_indices.size() ;                       
+
 
         if (inlier_ratio <
             estimator_.SampleSize() / static_cast<double>(data.size())) {
@@ -257,6 +261,25 @@ bool SampleConsensusEstimator<ModelEstimator>::Estimate(
   const std::vector<double> best_residuals =
       estimator_.Residuals(data, *best_model);
   quality_measurement_->ComputeCost(best_residuals, &summary->inliers);
+
+  // Burada hangi inlier lari kullancagimizi belirleyelim
+
+  VLOG(2) << "Inlier size 2 = " << summary->inliers.size() ;   
+
+  
+  Model last_model;
+
+  if (estimator_.EstimateModelFinal(data, &last_model, summary->inliers)) {
+  
+    VLOG(2) << "Best model for best inliers are computed" ;
+
+    *best_model = last_model;
+
+  }
+
+
+
+  // Best Model i degistirelim butun inlierlari kullandigimiz computed F ile. 
 
   const double inlier_ratio =
       static_cast<double>(summary->inliers.size()) / data.size();

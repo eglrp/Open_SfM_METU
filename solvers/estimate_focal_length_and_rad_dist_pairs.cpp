@@ -85,6 +85,40 @@ class FundamentalMatrixEstimator_F
 			return true;
 		}
 
+		// Estimates final fundamental matrices from correspondences.
+		bool EstimateModelFinal(const std::vector<matching::FeatureCorrespondence>& correspondences,
+		                 Eigen::Matrix3d* fundamental_matrix,
+		                 std::vector<int>& bestInliers) const {			
+			
+			std::cout << "best inlier size " << bestInliers.size() << std::endl;
+			std::cout << "corrs size " << correspondences.size() << std::endl;
+
+			
+			std::vector<Eigen::Vector2d> image1_points, image2_points;
+			
+			//std::cout << "correspondences size " << correspondences.size() << std::endl;
+
+			for (int i = 0; i < bestInliers.size(); i++) {
+			  //image1_points.emplace_back(correspondences[i].feature1);
+			  //image2_points.emplace_back(correspondences[i].feature2);
+
+			  //std::cout << "inlier index " << bestInliers[i] << std::endl;
+			  image1_points.emplace_back(correspondences[bestInliers[i]].feature1);
+			  image2_points.emplace_back(correspondences[bestInliers[i]].feature2);
+			}
+
+			Eigen::Matrix3d fmatrix;
+			std::vector<double> lambdaValues;
+			if (!NormalizedN_pointFundamentalMatrix_v2(image1_points, image2_points, fundamental_matrix)) {
+			        				
+			  	return false; 
+			}	
+
+
+			return true;
+
+		}
+
 				// Estimates candidate fundamental matrices from correspondences.
 		bool EstimateModel(const std::vector<matching::FeatureCorrespondence>& correspondences,
 		                 std::vector<Eigen::Matrix3d>* fundamental_matrices, std::vector<double>* l_values) const {
@@ -931,7 +965,7 @@ for (int id_focal = 0; id_focal < FOV_interval->size(); id_focal++){
 
     RansacParameters options_F;
     options_F.use_mle = false;
-    options_F.error_thresh = 1;
+    options_F.error_thresh = 1; 
     options_F.min_inlier_ratio = 0.99;
     options_F.min_iterations = 300;
     options_F.failure_probability = 0.01;

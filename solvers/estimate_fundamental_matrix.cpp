@@ -72,6 +72,19 @@ class FundamentalMatrixEstimator
 			return true;
 		}
 
+		// Estimates final fundamental matrices from correspondences.
+		bool EstimateModelFinal(const std::vector<matching::FeatureCorrespondence>& correspondences,
+		                 Eigen::Matrix3d* fundamental_matrix, 
+		                 std::vector<int>& bestInliers) const {
+			std::vector<Eigen::Vector2d> image1_points, image2_points;
+
+
+
+
+			return true;
+
+		}
+
 				// Estimates candidate fundamental matrices from correspondences.
 		bool EstimateModel(const std::vector<matching::FeatureCorrespondence>& correspondences,
 		                 std::vector<Eigen::Matrix3d>* fundamental_matrices, std::vector<double>* l_values) const {

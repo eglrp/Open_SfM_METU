@@ -39,6 +39,10 @@ template <typename DatumType, typename ModelType> class Estimator {
 		virtual bool EstimateModel(const std::vector<Datum>& data,
 		                         std::vector<Model>* model) const = 0;
 
+		// Final estimation of the model using the all inliers
+		virtual bool EstimateModelFinal(const std::vector<Datum>& data,
+		                         Model* model, std::vector<int>& bestInliers) const = 0;
+
 		// Given a set of data points, estimate the model. Users should implement this
 		// function appropriately for the task being solved. Returns true for
 		// successful model estimation (and outputs model), false for failed
