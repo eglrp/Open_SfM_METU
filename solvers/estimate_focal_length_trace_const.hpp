@@ -26,7 +26,9 @@ inline bool EstimateFocalLengthTraceConst(Eigen::Matrix3d& F_M, double& focal_le
 
 	double f11, f12, f13, f21, f22, f23, f31, f32, f33;
 
+	int sc = 1000;
 
+	/*
 
 	f11 = F_M(0,0);
 	f12 = F_M(0,1);
@@ -40,6 +42,20 @@ inline bool EstimateFocalLengthTraceConst(Eigen::Matrix3d& F_M, double& focal_le
 	f32 = F_M(2,1);
 	f33 = F_M(2,2);
 
+	*/
+
+	f11 = (sc * sc) * F_M(0,0);
+	f12 = (sc * sc) * F_M(0,1);
+	f13 = (sc) * F_M(0,2);
+
+	f21 = (sc * sc) * F_M(1,0);
+	f22 = (sc * sc) * F_M(1,1);
+	f23 = (sc) * F_M(1,2);
+
+	f31 = (sc) * F_M(2,0);
+	f32 = (sc) * F_M(2,1);
+	f33 = F_M(2,2);
+	
 	// 1st element of vector
 
 	double a11, a12, a13, a14;
@@ -175,7 +191,7 @@ inline bool EstimateFocalLengthTraceConst(Eigen::Matrix3d& F_M, double& focal_le
 
 
 
-	// Burada sicti
+	// Norm of 9x9 Matrix is a polynomial function to be solved
 	if(math::FindPolynomialRootsCompanionMatrix(polynomial_in,
                                         &real,
                                         &imaginary)){
@@ -188,7 +204,37 @@ inline bool EstimateFocalLengthTraceConst(Eigen::Matrix3d& F_M, double& focal_le
 
 
 	}
+
+
+	///////////////////////////////////
+	// Error Function Decleration /////
+	/////// in sparse order  //////////
+	///////////////////////////////////
+
+	// Poly - 2 
+
+	Eigen::VectorXd polynomial_in_2(9);
+	polynomial_in_2 << (12*(a21*a21)), 0, (10*(a21*a22 + a22*a21)), (9*(a21*a23 + 
+                a23*a21)), (8*(a21*a24 + a22*a22 + a24*a21)), (7*(a22*a23 + 
+                a23*a22)), (6*(a22*a24 + a23*a23 + a24*a22)), (5*(a23*a24 + 
+                a24*a23)), (4*(a24*a24));
 	
+	Eigen::VectorXd real_poly_2;
+	Eigen::VectorXd imaginary_poly_2;
+
+	// Poly_2 of 9x9 Matrix is solved
+	if(math::FindPolynomialRootsCompanionMatrix(polynomial_in_2,
+                                        &real_poly_2,
+                                        &imaginary_poly_2)){
+
+		std::cout << "poly_2 roots are (real)" << std::endl;
+		std::cout <<  real_poly_2 << std::endl;
+
+		std::cout << "poly_2 roots are (imaginery)" << std::endl;
+		std::cout <<  imaginary_poly_2 << std::endl;
+
+
+	}
 
 	return true;
 }

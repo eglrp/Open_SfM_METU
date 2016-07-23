@@ -5,6 +5,7 @@ add_subdirectory (nonfree)
 add_subdirectory (matching)
 add_subdirectory (solvers)
 add_subdirectory (math)
+add_subdirectory (video)
 
 
 #INSTALL RULES
