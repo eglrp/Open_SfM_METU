@@ -8,17 +8,5 @@ Open_SfM_METU is structure from motion (SfM) pipeline in which both self calibra
 
 In the scope this project, two views calibration algorithm is developed. Also, the two views calibration idea is applied to the global SfM pipeline containing N different cameras. 
 
-## Installation
-
-Use CMake build system :
-=> Install the following libraries : openCV, Ceres, boost 
- $ mkdir Build
- $ cd Build
- $ cmake . ..
- $ make
-
-## Tests
-
-Unit test will be added. 
 
 
