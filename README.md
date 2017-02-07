@@ -6,7 +6,7 @@ Open_SfM_METU is structure from motion (SfM) pipeline in which both self calibra
 
 ## Motivation
 
-In the scope this project, two views calibration algorithm is developed. Also, the two views calibration idea is applied to the global SfM pipeline containing N different cameras. 
+In the scope of this project, two views calibration algorithm is developed. Also, the two views calibration idea is applied to the global SfM pipeline containing N different cameras. 
 
 
 
